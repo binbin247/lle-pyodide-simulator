@@ -46,13 +46,13 @@ export function PlotPanel({
       plot_bgcolor: '#fbfcfd',
       font: { family: 'Inter, system-ui, sans-serif', size: 12, color: '#28313d' },
       xaxis: {
-        gridcolor: '#e7ebef',
-        zerolinecolor: '#cfd7df',
+        showgrid: false,
+        zeroline: false,
       },
       yaxis: {
         title: { text: yTitle },
-        gridcolor: '#e7ebef',
-        zerolinecolor: '#cfd7df',
+        showgrid: false,
+        zeroline: false,
       },
       showlegend: series.length > 1,
       legend: { orientation: 'h', x: 0, y: 1.16 },
