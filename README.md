@@ -1,4 +1,6 @@
-# Interactive LLE Simulator
+# CyberMicrocomb
+
+Interactive browser-based LLE simulator for microcomb dynamics.
 
 A browser-only real-time Lugiato-Lefever equation simulator built with React,
 TypeScript, Vite, Pyodide, NumPy, and a Web Worker.
@@ -81,7 +83,7 @@ to `main`.
 For this repository name, the production base path is:
 
 ```text
-/lle-pyodide-simulator/
+/CyberMicrocomb/
 ```
 
 The workflow sets `GITHUB_PAGES=true`, which makes Vite use that base path.

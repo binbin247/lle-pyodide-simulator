@@ -2,8 +2,8 @@ import type { Language } from '../types'
 
 export const copy = {
   en: {
-    title: 'Interactive LLE Simulator',
-    subtitle: 'Local Pyodide computation in a Web Worker',
+    title: 'CyberMicrocomb',
+    subtitle: 'Interactive browser-based LLE simulator for microcomb dynamics',
     language: 'Language',
     grid: 'Grid',
     play: 'Play',
@@ -46,8 +46,8 @@ export const copy = {
     stepsTip: 'Solver steps per visualization update.',
   },
   zh: {
-    title: '交互式 LLE 模拟器',
-    subtitle: '浏览器本地 Pyodide + Web Worker 计算',
+    title: 'CyberMicrocomb',
+    subtitle: 'Interactive browser-based LLE simulator for microcomb dynamics',
     language: '语言',
     grid: '网格',
     play: '播放',
