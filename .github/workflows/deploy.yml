@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Python test dependencies
+        run: python3 -m pip install numpy
+
       - name: Test
         run: npm run test
 
