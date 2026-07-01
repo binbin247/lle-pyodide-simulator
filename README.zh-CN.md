@@ -1,4 +1,4 @@
-# CyberMicrocomb [link](https://binbin247.github.io/CyberMicrocomb/)
+# CyberMicrocomb https://binbin247.github.io/CyberMicrocomb/
 
 [English](./README.md) | [中文](./README.zh-CN.md)
 
