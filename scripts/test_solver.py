@@ -1,4 +1,7 @@
+import math
 from pathlib import Path
+
+import numpy as np
 
 
 namespace = {}
@@ -15,7 +18,6 @@ def configure(solver, n=256, **params):
         "d3": 0.0,
         "d4": 0.0,
         "tauR": 0.0,
-        "dt": 1e-3,
         "stepsPerFrame": 10,
     }
     base.update(params)
@@ -51,8 +53,23 @@ def test_basic_lle_finite_with_raman_toggle():
     assert all(value == value for value in snap["intensity"])
 
 
+def test_adaptive_dt_satisfies_dispersion_aliasing_bound():
+    solver = LLESolver()
+    configure(solver, n=4096, d2=-0.25, d3=0.05, d4=0.01, dt=0.005)
+    params = solver.snapshot()["normalizedParams"]
+    dint = (
+        params["d2"] * solver.mu**2 / 2.0
+        + params["d3"] * solver.mu**3 / 6.0
+        + params["d4"] * solver.mu**4 / 24.0
+    )
+    max_phase_per_step = float(np.max(np.abs(dint)) * params["dt"])
+    assert max_phase_per_step < math.pi, max_phase_per_step
+    assert params["dt"] < 8e-4
+
+
 if __name__ == "__main__":
     test_zero_pump_decay()
     test_grid_rebuild()
     test_basic_lle_finite_with_raman_toggle()
+    test_adaptive_dt_satisfies_dispersion_aliasing_bound()
     print("solver tests passed")

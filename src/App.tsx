@@ -38,7 +38,6 @@ const normalizedControls = [
   ['d3', -0.05, 0.05, 0.0001, 'd3Tip'],
   ['d4', -0.01, 0.01, 0.00001, 'd4Tip'],
   ['tauR', 0, 0.2, 0.0001, 'tauTip'],
-  ['dt', 0.00001, 0.005, 0.00001, 'dtTip'],
   ['stepsPerFrame', 1, 250, 1, 'stepsTip'],
 ] as const
 

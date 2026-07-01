@@ -23,6 +23,8 @@ compute once the page has loaded.
 - Canvas waterfall history with a fixed 300-frame ring buffer.
 - Simple first-order split-step LLE solver with D2/D3/D4 and optional Raman
   shock term.
+- Adaptive timestep selection from `max(|Dint|)` to keep
+  `max(|Dint|) * dt < pi` and avoid dispersion-phase aliasing.
 - Static deployment target for GitHub Pages.
 
 ## Model

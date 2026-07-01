@@ -42,7 +42,6 @@ export const copy = {
     d3Tip: 'Third-order integrated dispersion coefficient.',
     d4Tip: 'Fourth-order integrated dispersion coefficient.',
     tauTip: 'Normalized Raman shock strength.',
-    dtTip: 'Slow-time step per split-step iteration.',
     stepsTip: 'Solver steps per visualization update.',
   },
   zh: {
@@ -86,7 +85,6 @@ export const copy = {
     d3Tip: '三阶集成色散系数。',
     d4Tip: '四阶集成色散系数。',
     tauTip: '归一化 Raman shock 强度。',
-    dtTip: '每次分步迭代的慢时间步长。',
     stepsTip: '每次可视化刷新前推进的 solver 步数。',
   },
 } as const

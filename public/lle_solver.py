@@ -4,6 +4,11 @@ import math
 import numpy as np
 
 
+MAX_DT = 8e-4
+MIN_DT = 1e-12
+ALIASING_SAFETY = 0.5
+
+
 class LLESolver:
     def __init__(self):
         self.rng = np.random.default_rng(20260701)
@@ -17,7 +22,7 @@ class LLESolver:
             "d3": 0.0,
             "d4": 0.0,
             "tauR": 0.0,
-            "dt": 8e-4,
+            "dt": MAX_DT,
             "stepsPerFrame": 50,
         }
         self.mu = self._make_mu(self.n)
@@ -96,20 +101,35 @@ class LLESolver:
         self.psi += self.params["pump"] * dt
 
         if not np.all(np.isfinite(self.psi)):
-            raise FloatingPointError("LLE state contains NaN or Inf; reduce dt or pump.")
+            raise FloatingPointError(
+                "LLE state contains NaN or Inf; reduce pump or dispersion range."
+            )
 
         self.step += 1
         self.t += dt
 
     def _refresh_linear(self):
+        self._refresh_adaptive_dt()
         p = self.params
-        dint = (
+        dint = self._dint()
+        linear = -(1.0 + 1j * p["alpha"]) + 1j * dint
+        self._linear = np.exp(linear * p["dt"])
+
+    def _refresh_adaptive_dt(self):
+        max_abs_dint = float(np.max(np.abs(self._dint())))
+        if max_abs_dint > 0.0:
+            alias_safe_dt = ALIASING_SAFETY * math.pi / max_abs_dint
+            self.params["dt"] = max(MIN_DT, min(MAX_DT, alias_safe_dt))
+        else:
+            self.params["dt"] = MAX_DT
+
+    def _dint(self):
+        p = self.params
+        return (
             p["d2"] * self.mu**2 / 2.0
             + p["d3"] * self.mu**3 / 6.0
             + p["d4"] * self.mu**4 / 24.0
         )
-        linear = -(1.0 + 1j * p["alpha"]) + 1j * dint
-        self._linear = np.exp(linear * p["dt"])
 
     def _initial_state(self, n):
         noise = 1e-3 * (self.rng.standard_normal(n) + 1j * self.rng.standard_normal(n))
@@ -128,7 +148,7 @@ class LLESolver:
             "d3": float(params.get("d3", 0.0)),
             "d4": float(params.get("d4", 0.0)),
             "tauR": float(params.get("tauR", 0.0)),
-            "dt": max(1e-7, float(params.get("dt", 8e-4))),
+            "dt": MAX_DT,
             "stepsPerFrame": max(1, int(round(float(params.get("stepsPerFrame", 50))))),
         }
         for key, value in cleaned.items():

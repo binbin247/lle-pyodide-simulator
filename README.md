@@ -21,6 +21,8 @@ React、TypeScript、Vite、Pyodide、NumPy 和 Web Worker 构建。
 - 使用 Plotly 绘制时域、频谱和腔内总能量曲线。
 - 使用 Canvas 绘制 waterfall 历史，并用固定 300 帧 ring buffer 保存。
 - 简单一阶分步傅里叶 LLE 求解器，支持 D2/D3/D4 和可选 Raman shock 项。
+- 根据 `max(|Dint|)` 自适应选择积分步长，使 `max(|Dint|) * dt < pi`，
+  避免色散相位 aliasing。
 - 面向 GitHub Pages 的纯静态部署。
 
 ## 模型
