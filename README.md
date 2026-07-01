@@ -18,7 +18,7 @@ React、TypeScript、Vite、Pyodide、NumPy 和 Web Worker 构建。
 - 中英文界面切换。
 - 固定网格：256、512、1024、2048 和 4096 点。
 - 参数实时更新，不重置当前光场。
-- 使用 Plotly 绘制时域、频谱、能量和峰值曲线。
+- 使用 Plotly 绘制时域、频谱和腔内总能量曲线。
 - 使用 Canvas 绘制 waterfall 历史，并用固定 300 帧 ring buffer 保存。
 - 简单一阶分步傅里叶 LLE 求解器，支持 D2/D3/D4 和可选 Raman shock 项。
 - 面向 GitHub Pages 的纯静态部署。

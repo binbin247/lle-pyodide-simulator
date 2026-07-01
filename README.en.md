@@ -19,7 +19,7 @@ compute once the page has loaded.
 - English and Chinese UI toggle.
 - Fixed grids: 256, 512, 1024, 2048, and 4096 points.
 - Real-time parameter updates without resetting the current field.
-- Plotly time-domain, spectrum, energy, and peak plots.
+- Plotly time-domain, spectrum, and intracavity-energy plots.
 - Canvas waterfall history with a fixed 300-frame ring buffer.
 - Simple first-order split-step LLE solver with D2/D3/D4 and optional Raman
   shock term.

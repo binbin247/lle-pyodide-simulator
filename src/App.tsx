@@ -54,7 +54,7 @@ function App() {
   const [isReady, setIsReady] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [livePreview, setLivePreview] = useState(true)
-  const [trace, setTrace] = useState<Array<{ step: number; energy: number; peak: number }>>([])
+  const [trace, setTrace] = useState<Array<{ step: number; energy: number }>>([])
   const [historyRows, setHistoryRows] = useState<Float32Array[]>([])
   const workerRef = useRef<Worker | null>(null)
   const lastGridRef = useRef<GridSize | null>(null)
@@ -125,10 +125,7 @@ function App() {
         setError(null)
         setSnapshot(next)
         setTrace((items) => {
-          const updated = [
-            ...items,
-            { step: next.step, energy: next.energy, peak: next.peak },
-          ]
+          const updated = [...items, { step: next.step, energy: next.energy }]
           return updated.slice(-HISTORY_LIMIT)
         })
         setHistoryRows((rows) => [...rows, next.historyRow].slice(-HISTORY_LIMIT))
