@@ -33,7 +33,7 @@ The normalized model is
 
 ```text
 dpsi/dt = [-(1 + i alpha) + i Dint(mu) + i |psi|^2] psi
-          + F - tauR psi d_theta |psi|^2
+          + F + i tauR psi d_theta |psi|^2
 ```
 
 where

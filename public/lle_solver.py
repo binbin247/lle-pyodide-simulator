@@ -91,7 +91,7 @@ class LLESolver:
         tau_r = self.params["tauR"]
         if tau_r != 0.0:
             d_abs2 = np.fft.ifft(1j * self.mu * np.fft.fft(abs2)).real
-            self.psi *= np.exp((1j * abs2 - tau_r * d_abs2) * dt)
+            self.psi *= np.exp(1j * (abs2 + tau_r * d_abs2) * dt)
         else:
             self.psi *= np.exp(1j * abs2 * dt)
 
