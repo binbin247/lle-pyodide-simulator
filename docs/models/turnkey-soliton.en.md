@@ -23,27 +23,34 @@ $t=\kappa T/2$ and $\psi=\sqrt{2g/\kappa}\,A$.
 The forward field is modeled as
 
 $$
-\frac{\partial \psi}{\partial t} =
--(1+i\alpha)\psi
-+ i\frac{d_2}{2}\frac{\partial^2\psi}{\partial \phi^2}
-+ i\left(|\psi|^2+2|\rho_B|^2\right)\psi
-+ i\beta\rho_B + F .
+\begin{aligned}
+\frac{\partial \psi}{\partial t}
+&=-(1+i\alpha)\psi
++i\frac{d_2}{2}\frac{\partial^2\psi}{\partial \phi^2} \\
+&\quad +i\left(|\psi|^2+2|\rho_B|^2\right)\psi
++i\beta\rho_B+F .
+\end{aligned}
 $$
 
 The backscattering variable and locked detuning are represented by the normalized
 feedback dynamics
 
 $$
+\begin{aligned}
 \frac{d\rho_B}{dt}
-=-\left(1+i\alpha-2iP-i|\rho_B|^2\right)\rho_B
-+ i\beta \langle\psi\rangle ,
+&=-\left(1+i\alpha-2iP-i|\rho_B|^2\right)\rho_B \\
+&\quad +i\beta \langle\psi\rangle ,
+\end{aligned}
 $$
 
 $$
-\alpha(t)\approx \alpha_L
+\begin{aligned}
+\alpha(t)
+&\approx \alpha_L
 +K\,\mathrm{Im}\left[
 \frac{e^{i\phi_\mathrm{fb}}\rho_B}{i\beta F}
 \right].
+\end{aligned}
 $$
 
 $P=\langle|\psi|^2\rangle$ is the normalized intracavity power,

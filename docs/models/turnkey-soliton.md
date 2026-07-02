@@ -18,26 +18,33 @@ $t=\kappa T/2$、$\psi=\sqrt{2g/\kappa}\,A$ 的损耗半宽归一化。
 主场方程写成
 
 $$
-\frac{\partial \psi}{\partial t} =
--(1+i\alpha)\psi
-+ i\frac{d_2}{2}\frac{\partial^2\psi}{\partial \phi^2}
-+ i\left(|\psi|^2+2|\rho_B|^2\right)\psi
-+ i\beta\rho_B + F .
+\begin{aligned}
+\frac{\partial \psi}{\partial t}
+&=-(1+i\alpha)\psi
++i\frac{d_2}{2}\frac{\partial^2\psi}{\partial \phi^2} \\
+&\quad +i\left(|\psi|^2+2|\rho_B|^2\right)\psi
++i\beta\rho_B+F .
+\end{aligned}
 $$
 
 反向散射变量和锁定失谐用简化的归一化动力学表示：
 
 $$
+\begin{aligned}
 \frac{d\rho_B}{dt}
-=-\left(1+i\alpha-2iP-i|\rho_B|^2\right)\rho_B
-+ i\beta \langle\psi\rangle ,
+&=-\left(1+i\alpha-2iP-i|\rho_B|^2\right)\rho_B \\
+&\quad +i\beta \langle\psi\rangle ,
+\end{aligned}
 $$
 
 $$
-\alpha(t)\approx \alpha_L
+\begin{aligned}
+\alpha(t)
+&\approx \alpha_L
 +K\,\mathrm{Im}\left[
 \frac{e^{i\phi_\mathrm{fb}}\rho_B}{i\beta F}
 \right].
+\end{aligned}
 $$
 
 这里 $P=\langle|\psi|^2\rangle$ 是归一化腔内功率，$\alpha_L$ 是自由运行激光与腔模的失谐，
