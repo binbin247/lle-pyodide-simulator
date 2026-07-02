@@ -69,5 +69,5 @@ full mode-family coupling, or a complete avoided-crossing model.
 
 ## References
 
-- V. E. Lobanov, G. Lihachev, T. J. Kippenberg, and M. L. Gorodetsky, "Frequency combs and platicons in optical microresonators with normal GVD," *Optics Express* **23**, 7713-7721 (2015). <https://doi.org/10.1364/OE.23.007713>
-- I. Rebolledo-Salgado et al., "Platicon dynamics in photonic molecules," *Communications Physics* **6**, 303 (2023). <https://www.nature.com/articles/s42005-023-01424-5>
+- X. Xue, Y. Xuan, Y. Liu, P.-H. Wang, S. Chen, J. Wang, D. E. Leaird, M. Qi, and A. M. Weiner, "Mode-locked dark pulse Kerr combs in normal-dispersion microresonators," *Nature Photonics* **9**, 594-600 (2015). <https://doi.org/10.1038/nphoton.2015.137>
+- H. Wang, B. Shen, Y. Yu, Z. Yuan, C. Bao, W. Jin, L. Chang, M. A. Leal, A. Feshali, M. Paniccia, J. E. Bowers, and K. Vahala, "Self-regulating soliton switching waves in microresonators," *Physical Review A* **106**, 053508 (2022). <https://doi.org/10.1103/PhysRevA.106.053508>
