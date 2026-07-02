@@ -8,23 +8,23 @@ interface Series {
   color?: string
 }
 
-export function PlotPanel({
-  title,
-  x,
-  series,
-  yTitle,
-  color,
-  yMinSpan,
-  yFloor,
-}: {
-  title: string
+interface PlotSurfaceProps {
   x: ArrayLike<number>
   series: Series[]
   yTitle: string
   color: string
   yMinSpan?: number
   yFloor?: number
-}) {
+}
+
+export function PlotSurface({
+  x,
+  series,
+  yTitle,
+  color,
+  yMinSpan,
+  yFloor,
+}: PlotSurfaceProps) {
   const ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -91,11 +91,22 @@ export function PlotPanel({
   }, [])
 
   return (
+    <div ref={ref} className="plot-surface" />
+  )
+}
+
+export function PlotPanel({
+  title,
+  ...plotProps
+}: PlotSurfaceProps & {
+  title: string
+}) {
+  return (
     <section className="visual-panel">
       <div className="visual-header">
         <h2>{title}</h2>
       </div>
-      <div ref={ref} className="plot-surface" />
+      <PlotSurface {...plotProps} />
     </section>
   )
 }

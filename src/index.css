@@ -415,6 +415,11 @@ button {
   min-height: 0;
 }
 
+.energy-panel {
+  min-height: 0;
+}
+
+.energy-pair,
 .waterfall-pair {
   display: grid;
   gap: 12px;
@@ -424,6 +429,7 @@ button {
   min-width: 0;
 }
 
+.energy-subpanel,
 .waterfall-subpanel {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -431,6 +437,7 @@ button {
   min-width: 0;
 }
 
+.energy-subheader,
 .waterfall-subheader {
   color: var(--muted);
   font-size: 12px;
@@ -519,6 +526,7 @@ button {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .energy-pair,
   .waterfall-pair {
     grid-template-columns: 1fr;
   }

@@ -168,7 +168,7 @@ class LLESolver:
 class StokesSolitonSolver:
     def __init__(self):
         self.rng = np.random.default_rng(20260702)
-        self.n = 512
+        self.n = 1024
         self.step = 0
         self.t = 0.0
         self.params = {
@@ -186,7 +186,7 @@ class StokesSolitonSolver:
             "tauR": 3.3e-4,
             "noise": 1e-5,
             "dt": DEFAULT_STOKES_DT,
-            "stepsPerFrame": 5000,
+            "stepsPerFrame": 1000,
         }
         self.mu = self._make_mu(self.n)
         self.psi_p = self._initial_primary_state(self.n)
@@ -385,7 +385,7 @@ class StokesSolitonSolver:
                 MAX_REQUESTED_DT,
                 max(MIN_DT, float(params.get("dt", DEFAULT_STOKES_DT))),
             ),
-            "stepsPerFrame": max(1, int(round(float(params.get("stepsPerFrame", 5000))))),
+            "stepsPerFrame": max(1, int(round(float(params.get("stepsPerFrame", 1000))))),
         }
         for key, value in cleaned.items():
             if not math.isfinite(value):

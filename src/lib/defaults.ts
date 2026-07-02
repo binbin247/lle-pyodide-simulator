@@ -3,6 +3,7 @@ import type { GridSize, StandardParams, StokesParams } from '../types'
 export const GRID_SIZES: GridSize[] = [256, 512, 1024, 2048, 4096]
 
 export const DEFAULT_GRID_SIZE: GridSize = 512
+export const DEFAULT_STOKES_GRID_SIZE: GridSize = 1024
 
 export const DEFAULT_STANDARD_PARAMS: StandardParams = {
   alpha: -5,
@@ -30,5 +31,5 @@ export const DEFAULT_STOKES_PARAMS: StokesParams = {
   tauR: 0.00033,
   noise: 0.00001,
   dt: 0.00005,
-  stepsPerFrame: 5000,
+  stepsPerFrame: 1000,
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_STOKES_PARAMS } from './defaults'
+import { DEFAULT_STOKES_GRID_SIZE, DEFAULT_STOKES_PARAMS } from './defaults'
 import { clampParamsForModel, clampStandardParams } from './physics'
 
 describe('parameter clamping', () => {
@@ -67,7 +67,8 @@ describe('parameter clamping', () => {
     expect(DEFAULT_STOKES_PARAMS.ramanGainS).toBeCloseTo(0.35 * 0.18 * 2)
     expect(DEFAULT_STOKES_PARAMS.wavelengthRatio).toBeCloseTo(1550 / 1630)
     expect(DEFAULT_STOKES_PARAMS.tauR).toBe(0.00033)
-    expect(DEFAULT_STOKES_PARAMS.stepsPerFrame).toBe(5000)
+    expect(DEFAULT_STOKES_PARAMS.stepsPerFrame).toBe(1000)
+    expect(DEFAULT_STOKES_GRID_SIZE).toBe(1024)
   })
 
   it('uses the Stokes default stride when Stokes steps per frame is invalid', () => {
@@ -76,6 +77,6 @@ describe('parameter clamping', () => {
       stepsPerFrame: Number.NaN,
     })
 
-    expect(params.stepsPerFrame).toBe(5000)
+    expect(params.stepsPerFrame).toBe(1000)
   })
 })

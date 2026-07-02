@@ -160,7 +160,8 @@ def test_stokes_defaults_follow_matlab_system_parameters():
 def test_stokes_default_uses_fast_fig_s1_scan_stride():
     solver = StokesSolitonSolver()
     params = solver.snapshot()["normalizedParams"]
-    assert params["stepsPerFrame"] == 5000
+    assert params["stepsPerFrame"] == 1000
+    assert len(solver.snapshot()["primaryIntensity"]) == 1024
 
 
 def test_stokes_detuning_is_fixed_at_zero():
