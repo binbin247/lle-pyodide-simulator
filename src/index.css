@@ -98,10 +98,10 @@ button {
   align-items: end;
   display: grid;
   gap: 8px;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 1fr;
   margin-top: 14px;
-  max-width: 300px;
-  width: min(100%, 300px);
+  max-width: none;
+  width: 100%;
 }
 
 .model-selector {
