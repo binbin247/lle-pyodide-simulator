@@ -8,6 +8,7 @@ export const copy = {
     model: 'Model',
     modelLabels: {
       standard: 'Standard soliton',
+      platicon: 'Standard dark pulse (platicon)',
       stokes: 'Stokes soliton',
     },
     controlGroups: {
@@ -46,6 +47,8 @@ export const copy = {
       d2: 'D2',
       d3: 'D3',
       d4: 'D4',
+      modeShiftMu: 'Mode shift position',
+      modeShiftStrength: 'Mode shift strength',
       tauR: 'tauR',
       dt: 'dt',
       stepsPerFrame: 'stepsPerFrame',
@@ -86,6 +89,16 @@ export const copy = {
         'Normalized fourth-order integrated dispersion.',
         'It contributes D4 * mu^4 / 24 to Dint(mu).',
         'It helps model higher-order dispersion curvature at large mode numbers.',
+      ],
+      modeShiftMu: [
+        'Relative mode index mu where the local mode shift is applied.',
+        'The solver rounds this value to the nearest integer and clamps it to the current grid.',
+        'Only that single comb mode is shifted; the opposite mode is not changed automatically.',
+      ],
+      modeShiftStrength: [
+        'Normalized local shift added to Dint at the selected mode.',
+        'The unit is kappa / 2, so a value of 4 means four cavity half-linewidths.',
+        'Positive values increase the selected mode integrated dispersion.',
       ],
       tauR: [
         'Normalized Raman shock coefficient.',
@@ -175,6 +188,7 @@ export const copy = {
     model: '模型',
     modelLabels: {
       standard: 'Standard soliton',
+      platicon: 'Standard dark pulse (platicon)',
       stokes: 'Stokes soliton',
     },
     controlGroups: {
@@ -213,6 +227,8 @@ export const copy = {
       d2: 'D2',
       d3: 'D3',
       d4: 'D4',
+      modeShiftMu: 'Mode shift position',
+      modeShiftStrength: 'Mode shift strength',
       tauR: 'tauR',
       dt: 'dt',
       stepsPerFrame: 'stepsPerFrame',
@@ -253,6 +269,16 @@ export const copy = {
         '归一化四阶 integrated dispersion。',
         '它在 Dint(mu) 中贡献 D4 * mu^4 / 24。',
         '用于描述大模式编号处更高阶的色散曲率。',
+      ],
+      modeShiftMu: [
+        '施加局部 mode shift 的相对模式编号 mu。',
+        'solver 会把这个值四舍五入成整数，并限制在当前网格允许的模式范围内。',
+        '该偏移只作用于这个单个 comb mode，不会自动同时作用到相反的模式。',
+      ],
+      modeShiftStrength: [
+        '加到所选模式 Dint 上的归一化局部偏移。',
+        '单位归一化到 kappa / 2，因此数值 4 表示四个腔半线宽。',
+        '正值表示增加该模式的 normalized integrated dispersion。',
       ],
       tauR: [
         '归一化 Raman shock 系数。',

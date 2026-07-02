@@ -13,18 +13,23 @@ import { PlotPanel } from './components/PlotPanel'
 import { WaterfallCanvas } from './components/WaterfallCanvas'
 import {
   DEFAULT_GRID_SIZE,
+  DEFAULT_PLATICON_GRID_SIZE,
+  DEFAULT_PLATICON_PARAMS,
   DEFAULT_STOKES_GRID_SIZE,
   DEFAULT_STANDARD_PARAMS,
   DEFAULT_STOKES_PARAMS,
   GRID_SIZES,
 } from './lib/defaults'
 import { t } from './lib/i18n'
-import { clampParamsForModel } from './lib/physics'
+import { MODEL_IDS } from './lib/models'
+import { clampParamsForModel, clampPlaticonParams, modeShiftBounds } from './lib/physics'
 import type {
   GridSize,
   Language,
   Metrics,
   ModelId,
+  PlaticonParams,
+  PlaticonSnapshot,
   SimulationParams,
   Snapshot,
   StandardParams,
@@ -39,7 +44,6 @@ const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.28.3/full'
 const BUSUANZI_URL = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js'
 const HISTORY_LIMIT = 300
 const ENERGY_MIN_Y_SPAN = 0.05
-const MODEL_IDS: ModelId[] = ['standard', 'stokes']
 const THETA_RANGE: [number, number] = [-Math.PI, Math.PI]
 const THETA_TICK_VALUES = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI]
 const THETA_TICK_LABELS = ['-pi', '-pi/2', '0', 'pi/2', 'pi']
@@ -93,6 +97,20 @@ const standardControlGroups: readonly ControlGroupDefinition[] = [
   },
 ]
 
+const platiconControlGroups: readonly ControlGroupDefinition[] = [
+  {
+    controls: [
+      { key: 'alpha', min: -20, max: 40, step: 0.01 },
+      { key: 'pump', min: 0, max: 12, step: 0.01 },
+      { key: 'd2', min: -0.25, max: 0.25, step: 0.0001 },
+      { key: 'modeShiftMu', min: -256, max: 255, step: 1 },
+      { key: 'modeShiftStrength', min: -20, max: 20, step: 0.01 },
+      { key: 'dt', min: 1e-12, max: 0.005, step: 0.000001 },
+      { key: 'stepsPerFrame', min: 1, max: 250, step: 1 },
+    ],
+  },
+]
+
 const stokesControlGroups: readonly ControlGroupDefinition[] = [
   {
     titleKey: 'primary',
@@ -136,9 +154,11 @@ function App() {
   const [modelId, setModelId] = useState<ModelId>('standard')
   const [gridSizesByModel, setGridSizesByModel] = useState<Record<ModelId, GridSize>>({
     standard: DEFAULT_GRID_SIZE,
+    platicon: DEFAULT_PLATICON_GRID_SIZE,
     stokes: DEFAULT_STOKES_GRID_SIZE,
   })
   const [standardParams, setStandardParams] = useState(DEFAULT_STANDARD_PARAMS)
+  const [platiconParams, setPlaticonParams] = useState(DEFAULT_PLATICON_PARAMS)
   const [stokesParams, setStokesParams] = useState(DEFAULT_STOKES_PARAMS)
   const [status, setStatus] = useState<WorkerStatus>('idle')
   const [loadingMessage, setLoadingMessage] = useState('')
@@ -164,17 +184,27 @@ function App() {
   const isRunningRef = useRef(false)
   const previewTimerRef = useRef<number | null>(null)
 
-  const activeParams = useMemo(
-    () =>
-      modelId === 'stokes'
-        ? (clampParamsForModel('stokes', stokesParams) as StokesParams)
-        : (clampParamsForModel('standard', standardParams) as StandardParams),
-    [modelId, standardParams, stokesParams],
-  )
   const gridSize = gridSizesByModel[modelId]
 
+  const activeParams = useMemo(
+    () => {
+      if (modelId === 'stokes') {
+        return clampParamsForModel('stokes', stokesParams) as StokesParams
+      }
+      if (modelId === 'platicon') {
+        return clampPlaticonParams(platiconParams, gridSize)
+      }
+      return clampParamsForModel('standard', standardParams) as StandardParams
+    },
+    [gridSize, modelId, platiconParams, standardParams, stokesParams],
+  )
+
   const activeControlGroups =
-    modelId === 'stokes' ? stokesControlGroups : standardControlGroups
+    modelId === 'stokes'
+      ? stokesControlGroups
+      : modelId === 'platicon'
+        ? platiconControlGroups
+        : standardControlGroups
   const activeHistoryRows = historyRows.standard
   const activeWaterfallCount =
     modelId === 'stokes'
@@ -264,7 +294,7 @@ function App() {
         setError(null)
         setSnapshot(next)
         snapshotRef.current = next
-        syncClampedDt(next, setStandardParams, setStokesParams)
+        syncClampedDt(next, setStandardParams, setPlaticonParams, setStokesParams)
         setTrace((items) => {
           const clipped = [...items, tracePointFromSnapshot(next)].slice(-HISTORY_LIMIT)
           traceRef.current = clipped
@@ -446,11 +476,16 @@ function App() {
           <div className="section-title">{labels.params}</div>
           <ControlGrid
             groups={activeControlGroups}
+            gridSize={gridSize}
             labels={labels}
             values={activeParams}
             onChange={(key, value) => {
               if (modelId === 'stokes') {
                 setStokesParams((current) => ({ ...current, [key]: value }) as StokesParams)
+              } else if (modelId === 'platicon') {
+                setPlaticonParams(
+                  (current) => ({ ...current, [key]: value }) as PlaticonParams,
+                )
               } else {
                 setStandardParams(
                   (current) => ({ ...current, [key]: value }) as StandardParams,
@@ -568,11 +603,13 @@ function App() {
 
 function ControlGrid({
   groups,
+  gridSize,
   labels,
   values,
   onChange,
 }: {
   groups: readonly ControlGroupDefinition[]
+  gridSize: GridSize
   labels: ReturnType<typeof t>
   values: SimulationParams
   onChange: (key: string, value: number) => void
@@ -588,7 +625,9 @@ function ControlGrid({
             </div>
           )}
           <div className="control-grid">
-            {group.controls.map(({ key, min, max, step }) => {
+            {group.controls.map((control) => {
+              const { key, step } = control
+              const { min, max } = controlRange(control, gridSize)
               const value = valuesByKey[key] ?? 0
               const help = labels.parameterHelp[key as keyof typeof labels.parameterHelp]
               const helpId = `parameter-help-${key}`
@@ -647,10 +686,19 @@ function ControlGrid({
 function syncClampedDt(
   snapshot: Snapshot,
   setStandardParams: Dispatch<SetStateAction<StandardParams>>,
+  setPlaticonParams: Dispatch<SetStateAction<PlaticonParams>>,
   setStokesParams: Dispatch<SetStateAction<StokesParams>>,
 ) {
   if (snapshot.modelId === 'stokes') {
     setStokesParams((current) =>
+      snapshot.normalizedParams.dt < current.dt - 1e-12
+        ? { ...current, dt: snapshot.normalizedParams.dt }
+        : current,
+    )
+    return
+  }
+  if (snapshot.modelId === 'platicon') {
+    setPlaticonParams((current) =>
       snapshot.normalizedParams.dt < current.dt - 1e-12
         ? { ...current, dt: snapshot.normalizedParams.dt }
         : current,
@@ -758,8 +806,10 @@ function isStokesSnapshot(snapshot: Snapshot | null): snapshot is StokesSnapshot
   return snapshot?.modelId === 'stokes'
 }
 
-function isStandardSnapshot(snapshot: Snapshot | null): snapshot is StandardSnapshot {
-  return snapshot?.modelId === 'standard'
+function isSingleFieldSnapshot(
+  snapshot: Snapshot | null,
+): snapshot is StandardSnapshot | PlaticonSnapshot {
+  return snapshot?.modelId === 'standard' || snapshot?.modelId === 'platicon'
 }
 
 function clampControlValue(value: number, min: number, max: number) {
@@ -767,6 +817,14 @@ function clampControlValue(value: number, min: number, max: number) {
     return min
   }
   return Math.min(max, Math.max(min, value))
+}
+
+function controlRange(control: ControlDefinition, gridSize: GridSize) {
+  if (control.key !== 'modeShiftMu') {
+    return { min: control.min, max: control.max }
+  }
+  const { minMu, maxMu } = modeShiftBounds(gridSize)
+  return { min: minMu, max: maxMu }
 }
 
 function Metric({ label, value }: { label: string; value: string | number }) {
@@ -883,10 +941,14 @@ function buildExportPayload(solverState: unknown, source: ExportPlotSource) {
     }
   }
 
-  if (isStandardSnapshot(snapshot)) {
+  if (isSingleFieldSnapshot(snapshot)) {
     const waterfallRows = source.historyRows.standard.map((row) => Array.from(row))
     return {
       ...base,
+      fields: {
+        psi_real: asNumberArray(solverStateObject.psi_real),
+        psi_imag: asNumberArray(solverStateObject.psi_imag),
+      },
       currentSnapshot: {
         step: snapshot.step,
         t: snapshot.t,

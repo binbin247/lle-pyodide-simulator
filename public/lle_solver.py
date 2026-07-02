@@ -178,6 +178,194 @@ class LLESolver:
         return cleaned
 
 
+class PlaticonSolver:
+    def __init__(self):
+        self.rng = np.random.default_rng(20260703)
+        self.n = 512
+        self.step = 0
+        self.t = 0.0
+        self.params = {
+            "alpha": 4.0,
+            "pump": 3.94,
+            "d2": 0.02,
+            "modeShiftMu": 0,
+            "modeShiftStrength": 4.0,
+            "dt": DEFAULT_DT,
+            "stepsPerFrame": 50,
+        }
+        self.mu = self._make_mu(self.n)
+        self.psi = self._initial_state(self.n)
+        self._linear = None
+        self._refresh_linear()
+
+    def configure(self, config):
+        n = int(config["n"])
+        reset = bool(config.get("reset", False))
+        self.params = self._clean_params(config["params"], n)
+        if reset or n != self.n:
+            self.n = n
+            self.mu = self._make_mu(n)
+            self.psi = self._initial_state(n)
+            self.step = 0
+            self.t = 0.0
+        self._refresh_linear()
+        return {"ok": True}
+
+    def update_params(self, params):
+        self.params = self._clean_params(params, self.n)
+        self._refresh_linear()
+        return {"ok": True}
+
+    def run_steps(self):
+        self.advance_steps()
+        return self.snapshot()
+
+    def advance_steps(self):
+        steps = int(self.params["stepsPerFrame"])
+        for _ in range(max(1, steps)):
+            self._step_once()
+
+    def snapshot(self):
+        intensity = np.abs(self.psi) ** 2
+        spectrum = np.fft.fftshift(np.fft.fft(self.psi)) / self.n
+        spectrum_db = 20.0 * np.log10(np.abs(spectrum) + 1e-12)
+        history_row = 10.0 * np.log10(intensity + 1e-12)
+        return {
+            "modelId": "platicon",
+            "step": int(self.step),
+            "t": float(self.t),
+            "intensity": intensity.astype(np.float32),
+            "spectrumDb": spectrum_db.astype(np.float32),
+            "historyRow": history_row.astype(np.float32),
+            "energy": float(np.mean(intensity)),
+            "peak": float(np.max(intensity)),
+            "normalizedParams": dict(self.params),
+        }
+
+    def export_state(self):
+        return {
+            "modelId": "platicon",
+            "n": self.n,
+            "step": int(self.step),
+            "t": float(self.t),
+            "params": dict(self.params),
+            "psi_real": self.psi.real.tolist(),
+            "psi_imag": self.psi.imag.tolist(),
+        }
+
+    def _step_once(self):
+        dt = self.params["dt"]
+        self.psi *= np.exp(1j * np.abs(self.psi) ** 2 * dt)
+
+        psi_freq = np.fft.fft(self.psi)
+        psi_freq *= self._linear
+        self.psi = np.fft.ifft(psi_freq)
+        self.psi += self.params["pump"] * dt
+
+        if not np.all(np.isfinite(self.psi)):
+            raise FloatingPointError(
+                "Platicon state contains NaN or Inf; reduce pump, mode shift, or timestep."
+            )
+
+        self.step += 1
+        self.t += dt
+
+    def _refresh_linear(self):
+        self._refresh_adaptive_dt()
+        p = self.params
+        linear = -(1.0 + 1j * p["alpha"]) + 1j * self._dint()
+        self._linear = np.exp(linear * p["dt"])
+
+    def _refresh_adaptive_dt(self):
+        max_abs_dint = float(np.max(np.abs(self._dint())))
+        requested_dt = self.params["dt"]
+        if max_abs_dint > 0.0:
+            alias_safe_dt = ALIASING_SAFETY * math.pi / max_abs_dint
+            self.params["dt"] = max(MIN_DT, min(requested_dt, alias_safe_dt))
+        else:
+            self.params["dt"] = requested_dt
+
+    def _dint(self):
+        p = self.params
+        dint = p["d2"] * self.mu**2 / 2.0
+        shifted_mode = int(p["modeShiftMu"])
+        dint = np.array(dint, dtype=np.float64, copy=True)
+        dint[self.mu == shifted_mode] += p["modeShiftStrength"]
+        return dint
+
+    def _initial_state(self, n):
+        p = self.params
+        pump = p["pump"]
+        alpha = p["alpha"]
+        theta = np.linspace(-math.pi, math.pi, n, endpoint=False)
+        noise = self._complex_noise(n, 1e-4)
+        if pump <= 0.0 or not math.isfinite(alpha):
+            return noise.astype(np.complex128)
+
+        intensity = self._upper_cw_intensity(pump, alpha)
+        psi_cw = pump / (1.0 + 1j * (alpha - intensity))
+        half_width = math.pi / 3.0
+        edge_width = max(
+            0.04,
+            math.sqrt(abs(p["d2"]) / max(abs(alpha), 1e-9)),
+        )
+        window = 0.5 * (
+            np.tanh((theta + half_width) / edge_width)
+            - np.tanh((theta - half_width) / edge_width)
+        )
+        psi = psi_cw * (1.0 - 0.9 * window) + noise
+        return psi.astype(np.complex128)
+
+    @staticmethod
+    def _upper_cw_intensity(pump, alpha):
+        coefficients = [1.0, -2.0 * alpha, alpha**2 + 1.0, -(pump**2)]
+        roots = np.roots(coefficients)
+        real_roots = [
+            float(root.real)
+            for root in roots
+            if abs(root.imag) < 1e-7 and root.real > 0.0
+        ]
+        if real_roots:
+            return max(real_roots)
+        return max(0.0, pump**2 / (1.0 + alpha**2))
+
+    def _complex_noise(self, n, scale):
+        return scale * (self.rng.standard_normal(n) + 1j * self.rng.standard_normal(n))
+
+    @staticmethod
+    def _make_mu(n):
+        return np.fft.fftfreq(n, d=1.0 / n)
+
+    @staticmethod
+    def _mode_bounds(n):
+        half = n // 2
+        return -half, half - 1
+
+    @classmethod
+    def _clean_params(cls, params, n):
+        min_mu, max_mu = cls._mode_bounds(n)
+        raw_mode_shift_mu = float(params.get("modeShiftMu", 0))
+        if not math.isfinite(raw_mode_shift_mu):
+            raw_mode_shift_mu = 0.0
+        mode_shift_mu = int(round(raw_mode_shift_mu))
+        cleaned = {
+            "alpha": float(params.get("alpha", 4.0)),
+            "pump": max(0.0, float(params.get("pump", 3.94))),
+            "d2": float(params.get("d2", 0.02)),
+            "modeShiftMu": min(max_mu, max(min_mu, mode_shift_mu)),
+            "modeShiftStrength": float(params.get("modeShiftStrength", 4.0)),
+            "dt": min(
+                MAX_REQUESTED_DT,
+                max(MIN_DT, float(params.get("dt", DEFAULT_DT))),
+            ),
+            "stepsPerFrame": max(1, int(round(float(params.get("stepsPerFrame", 50))))),
+        }
+        for key, value in cleaned.items():
+            if not math.isfinite(value):
+                raise ValueError(f"Parameter {key} is not finite.")
+        return cleaned
+
+
 class StokesSolitonSolver:
     def __init__(self):
         self.rng = np.random.default_rng(20260702)
@@ -413,11 +601,16 @@ class SimulationManager:
 
     def configure(self, config):
         model_id = str(config.get("modelId", "standard"))
-        if model_id not in {"standard", "stokes"}:
+        if model_id not in {"standard", "platicon", "stokes"}:
             raise ValueError(f"Unknown modelId: {model_id}")
         if model_id != self.model_id:
             self.model_id = model_id
-            self.solver = StokesSolitonSolver() if model_id == "stokes" else LLESolver()
+            if model_id == "stokes":
+                self.solver = StokesSolitonSolver()
+            elif model_id == "platicon":
+                self.solver = PlaticonSolver()
+            else:
+                self.solver = LLESolver()
         return self.solver.configure(config)
 
     def update_params(self, params):

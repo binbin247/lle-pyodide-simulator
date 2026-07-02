@@ -2,7 +2,7 @@ export type Language = 'en' | 'zh'
 
 export type GridSize = 256 | 512 | 1024 | 2048 | 4096
 
-export type ModelId = 'standard' | 'stokes'
+export type ModelId = 'standard' | 'platicon' | 'stokes'
 
 export interface StandardParams {
   alpha: number
@@ -11,6 +11,16 @@ export interface StandardParams {
   d3: number
   d4: number
   tauR: number
+  dt: number
+  stepsPerFrame: number
+}
+
+export interface PlaticonParams {
+  alpha: number
+  pump: number
+  d2: number
+  modeShiftMu: number
+  modeShiftStrength: number
   dt: number
   stepsPerFrame: number
 }
@@ -33,7 +43,7 @@ export interface StokesParams {
   stepsPerFrame: number
 }
 
-export type SimulationParams = StandardParams | StokesParams
+export type SimulationParams = StandardParams | PlaticonParams | StokesParams
 
 export interface Metrics {
   stepsPerSecond: number
@@ -57,6 +67,18 @@ export interface StandardSnapshot {
   normalizedParams: StandardParams
 }
 
+export interface PlaticonSnapshot {
+  modelId: 'platicon'
+  step: number
+  t: number
+  intensity: Float32Array
+  spectrumDb: Float32Array
+  historyRow: Float32Array
+  energy: number
+  peak: number
+  normalizedParams: PlaticonParams
+}
+
 export interface StokesSnapshot {
   modelId: 'stokes'
   step: number
@@ -74,7 +96,7 @@ export interface StokesSnapshot {
   normalizedParams: StokesParams
 }
 
-export type Snapshot = StandardSnapshot | StokesSnapshot
+export type Snapshot = StandardSnapshot | PlaticonSnapshot | StokesSnapshot
 
 export type WorkerStatus =
   | 'idle'

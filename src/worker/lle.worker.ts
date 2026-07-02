@@ -5,6 +5,7 @@ import type {
   MainToWorkerMessage,
   Metrics,
   ModelId,
+  PlaticonSnapshot,
   SimulationParams,
   Snapshot,
   StandardSnapshot,
@@ -282,7 +283,7 @@ function normalizeSnapshot(snapshot: Snapshot): Snapshot {
       stokesHistoryRow: toFloat32Array(stokesSnapshot.stokesHistoryRow),
     }
   }
-  const standardSnapshot = snapshot as StandardSnapshot
+  const standardSnapshot = snapshot as StandardSnapshot | PlaticonSnapshot
   return {
     ...standardSnapshot,
     intensity: toFloat32Array(standardSnapshot.intensity),

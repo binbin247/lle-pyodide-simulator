@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DEFAULT_PLATICON_GRID_SIZE,
+  DEFAULT_PLATICON_PARAMS,
   DEFAULT_STANDARD_PARAMS,
   DEFAULT_STOKES_GRID_SIZE,
   DEFAULT_STOKES_PARAMS,
 } from './defaults'
-import { clampParamsForModel, clampStandardParams } from './physics'
+import { MODEL_IDS } from './models'
+import { clampParamsForModel, clampPlaticonParams, clampStandardParams } from './physics'
 
 describe('parameter clamping', () => {
   it('keeps finite normalized controls and clamps invalid values', () => {
@@ -62,6 +65,53 @@ describe('parameter clamping', () => {
       dt: 0.00005,
       stepsPerFrame: 10,
     })
+  })
+
+  it('orders models with platicon between standard and Stokes', () => {
+    expect(MODEL_IDS).toEqual(['standard', 'platicon', 'stokes'])
+  })
+
+  it('keeps platicon controls finite and inside interactive ranges', () => {
+    const params = clampParamsForModel('platicon', {
+      alpha: Number.POSITIVE_INFINITY,
+      pump: -5,
+      d2: 2,
+      modeShiftMu: 7.6,
+      modeShiftStrength: -30,
+      dt: Number.POSITIVE_INFINITY,
+      stepsPerFrame: Number.NaN,
+    })
+
+    expect(params).toMatchObject({
+      alpha: DEFAULT_PLATICON_PARAMS.alpha,
+      pump: 0,
+      d2: 0.25,
+      modeShiftMu: 8,
+      modeShiftStrength: -20,
+      dt: DEFAULT_PLATICON_PARAMS.dt,
+      stepsPerFrame: DEFAULT_PLATICON_PARAMS.stepsPerFrame,
+    })
+  })
+
+  it('uses platicon dark-pulse defaults', () => {
+    expect(DEFAULT_PLATICON_GRID_SIZE).toBe(512)
+    expect(DEFAULT_PLATICON_PARAMS).toMatchObject({
+      alpha: 4,
+      pump: 3.94,
+      d2: 0.02,
+      modeShiftMu: 0,
+      modeShiftStrength: 4,
+      dt: 0.0008,
+      stepsPerFrame: 50,
+    })
+  })
+
+  it('clamps platicon mode shift to the selected grid', () => {
+    const high = clampPlaticonParams({ ...DEFAULT_PLATICON_PARAMS, modeShiftMu: 9999 }, 256)
+    const low = clampPlaticonParams({ ...DEFAULT_PLATICON_PARAMS, modeShiftMu: -9999 }, 256)
+
+    expect(high.modeShiftMu).toBe(127)
+    expect(low.modeShiftMu).toBe(-128)
   })
 
   it('keeps Stokes system defaults aligned with the MATLAB scan script', () => {

@@ -8,6 +8,7 @@ namespace = {}
 solver_source = Path(__file__).resolve().parents[1] / "public" / "lle_solver.py"
 exec(solver_source.read_text(encoding="utf-8"), namespace)
 LLESolver = namespace["LLESolver"]
+PlaticonSolver = namespace["PlaticonSolver"]
 StokesSolitonSolver = namespace["StokesSolitonSolver"]
 
 
@@ -82,6 +83,88 @@ def test_standard_defaults_use_soliton_ansatz_seed():
     assert snap["normalizedParams"]["alpha"] == 10.0
     assert snap["peak"] > 1.0
     assert snap["energy"] > 0.01
+
+
+def configure_platicon(solver, n=256, **params):
+    base = {
+        "alpha": 4.0,
+        "pump": 3.94,
+        "d2": 0.02,
+        "modeShiftMu": 0,
+        "modeShiftStrength": 4.0,
+        "dt": 8e-4,
+        "stepsPerFrame": 50,
+    }
+    base.update(params)
+    solver.configure({"n": n, "params": base, "reset": True})
+    return base
+
+
+def test_platicon_solver_snapshot_is_finite():
+    solver = PlaticonSolver()
+    configure_platicon(solver)
+    for _ in range(3):
+        snap = solver.run_steps()
+    assert snap["modelId"] == "platicon"
+    assert len(snap["intensity"]) == 256
+    assert np.all(np.isfinite(snap["intensity"]))
+    assert np.all(np.isfinite(snap["spectrumDb"]))
+
+
+def test_platicon_default_seed_has_dark_notch():
+    solver = PlaticonSolver()
+    snap = solver.snapshot()
+    intensity = snap["intensity"]
+    assert snap["modelId"] == "platicon"
+    assert snap["peak"] > 0.1
+    assert np.min(intensity) < 0.5 * np.max(intensity)
+    assert snap["energy"] > 0.01
+
+
+def test_platicon_mode_shift_changes_only_selected_mode():
+    solver = PlaticonSolver()
+    configure_platicon(solver, n=256, d2=0.0, modeShiftMu=7, modeShiftStrength=3.5)
+    dint = solver._dint()
+    shifted = np.where(solver.mu == 7)[0]
+    assert len(shifted) == 1
+    assert dint[shifted[0]] == 3.5
+    assert np.count_nonzero(np.abs(dint) > 1e-12) == 1
+
+
+def test_platicon_mode_shift_rounds_and_clamps_to_grid():
+    solver = PlaticonSolver()
+    configure_platicon(solver, n=256, modeShiftMu=7.6)
+    assert solver.snapshot()["normalizedParams"]["modeShiftMu"] == 8
+    configure_platicon(solver, n=256, modeShiftMu=9999)
+    assert solver.snapshot()["normalizedParams"]["modeShiftMu"] == 127
+    configure_platicon(solver, n=256, modeShiftMu=-9999)
+    assert solver.snapshot()["normalizedParams"]["modeShiftMu"] == -128
+
+
+def test_platicon_adaptive_dt_satisfies_dispersion_aliasing_bound():
+    solver = PlaticonSolver()
+    configure_platicon(
+        solver,
+        n=4096,
+        d2=0.25,
+        modeShiftMu=0,
+        modeShiftStrength=20.0,
+        dt=0.005,
+    )
+    params = solver.snapshot()["normalizedParams"]
+    max_phase_per_step = float(np.max(np.abs(solver._dint())) * params["dt"])
+    assert max_phase_per_step < math.pi, max_phase_per_step
+    assert params["dt"] < 8e-4
+
+
+def test_platicon_grid_rebuild_resets_field():
+    solver = PlaticonSolver()
+    configure_platicon(solver, n=256)
+    solver.run_steps()
+    configure_platicon(solver, n=512)
+    snap = solver.snapshot()
+    assert len(snap["intensity"]) == 512
+    assert solver.step == 0
 
 
 def configure_stokes(solver, n=256, **params):
@@ -186,6 +269,12 @@ if __name__ == "__main__":
     test_adaptive_dt_satisfies_dispersion_aliasing_bound()
     test_user_dt_is_preserved_when_aliasing_safe()
     test_standard_defaults_use_soliton_ansatz_seed()
+    test_platicon_solver_snapshot_is_finite()
+    test_platicon_default_seed_has_dark_notch()
+    test_platicon_mode_shift_changes_only_selected_mode()
+    test_platicon_mode_shift_rounds_and_clamps_to_grid()
+    test_platicon_adaptive_dt_satisfies_dispersion_aliasing_bound()
+    test_platicon_grid_rebuild_resets_field()
     test_stokes_solver_snapshot_is_finite()
     test_stokes_grid_rebuild_resets_both_fields()
     test_stokes_export_contains_dual_fields()

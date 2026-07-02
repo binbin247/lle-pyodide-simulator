@@ -1,13 +1,28 @@
-import type { ModelId, SimulationParams, StandardParams, StokesParams } from '../types'
-import { DEFAULT_STANDARD_PARAMS, DEFAULT_STOKES_PARAMS } from './defaults'
+import type {
+  GridSize,
+  ModelId,
+  PlaticonParams,
+  SimulationParams,
+  StandardParams,
+  StokesParams,
+} from '../types'
+import {
+  DEFAULT_PLATICON_PARAMS,
+  DEFAULT_STANDARD_PARAMS,
+  DEFAULT_STOKES_PARAMS,
+} from './defaults'
 
 export function clampParamsForModel(
   modelId: ModelId,
   params: SimulationParams,
 ): SimulationParams {
-  return modelId === 'stokes'
-    ? clampStokesParams(params as StokesParams)
-    : clampStandardParams(params as StandardParams)
+  if (modelId === 'stokes') {
+    return clampStokesParams(params as StokesParams)
+  }
+  if (modelId === 'platicon') {
+    return clampPlaticonParams(params as PlaticonParams)
+  }
+  return clampStandardParams(params as StandardParams)
 }
 
 export function clampStandardParams(params: StandardParams): StandardParams {
@@ -24,6 +39,36 @@ export function clampStandardParams(params: StandardParams): StandardParams {
       Math.round(finiteOr(params.stepsPerFrame, DEFAULT_STANDARD_PARAMS.stepsPerFrame)),
     ),
   }
+}
+
+export function clampPlaticonParams(
+  params: PlaticonParams,
+  gridSize: GridSize = 4096,
+): PlaticonParams {
+  const { minMu, maxMu } = modeShiftBounds(gridSize)
+  return {
+    alpha: clamp(finiteOr(params.alpha, DEFAULT_PLATICON_PARAMS.alpha), -20, 40),
+    pump: clamp(finiteOr(params.pump, DEFAULT_PLATICON_PARAMS.pump), 0, 12),
+    d2: clamp(finiteOr(params.d2, DEFAULT_PLATICON_PARAMS.d2), -0.25, 0.25),
+    modeShiftMu: Math.round(
+      clamp(finiteOr(params.modeShiftMu, DEFAULT_PLATICON_PARAMS.modeShiftMu), minMu, maxMu),
+    ),
+    modeShiftStrength: clamp(
+      finiteOr(params.modeShiftStrength, DEFAULT_PLATICON_PARAMS.modeShiftStrength),
+      -20,
+      20,
+    ),
+    dt: clamp(finiteOr(params.dt, DEFAULT_PLATICON_PARAMS.dt), 1e-12, 0.005),
+    stepsPerFrame: Math.max(
+      1,
+      Math.round(finiteOr(params.stepsPerFrame, DEFAULT_PLATICON_PARAMS.stepsPerFrame)),
+    ),
+  }
+}
+
+export function modeShiftBounds(gridSize: GridSize) {
+  const half = Math.floor(gridSize / 2)
+  return { minMu: -half, maxMu: half - 1 }
 }
 
 export function clampStokesParams(params: StokesParams): StokesParams {
