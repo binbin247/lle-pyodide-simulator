@@ -47,6 +47,8 @@ const ENERGY_MIN_Y_SPAN = 0.05
 const THETA_RANGE: [number, number] = [-Math.PI, Math.PI]
 const THETA_TICK_VALUES = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI]
 const THETA_TICK_LABELS = ['-pi', '-pi/2', '0', 'pi/2', 'pi']
+const TEMPORAL_X_TITLE = 'Azimuthal coordinate φ'
+const SPECTRUM_X_TITLE = 'Mode number μ'
 
 interface TracePoint {
   step: number
@@ -549,7 +551,7 @@ function App() {
             x={intensityX}
             series={temporalSeries}
             xRange={THETA_RANGE}
-            xTitle="theta"
+            xTitle={TEMPORAL_X_TITLE}
             xTickLabels={THETA_TICK_LABELS}
             xTickValues={THETA_TICK_VALUES}
             yTitle={labels.intensity}
@@ -559,6 +561,7 @@ function App() {
             title={labels.spectrum}
             x={spectrumX}
             series={spectrumSeries}
+            xTitle={SPECTRUM_X_TITLE}
             yTitle={labels.spectrumDb}
             color="#c43b42"
           />
@@ -910,14 +913,14 @@ function buildExportPayload(solverState: unknown, source: ExportPlotSource) {
           x: thetaArray(snapshot.primaryIntensity.length),
           primaryIntensity: Array.from(snapshot.primaryIntensity),
           stokesIntensity: Array.from(snapshot.stokesIntensity),
-          xLabel: 'theta (rad)',
+          xLabel: TEMPORAL_X_TITLE,
           yLabel: '|psi|^2',
         },
         combSpectrum: {
           mode: centeredModeArray(snapshot.primarySpectrumDb.length),
           primarySpectrumDb: Array.from(snapshot.primarySpectrumDb),
           stokesSpectrumDb: Array.from(snapshot.stokesSpectrumDb),
-          xLabel: 'mode index mu',
+          xLabel: SPECTRUM_X_TITLE,
           yLabel: 'Spectrum (dB)',
         },
         intracavityEnergy: {
@@ -960,13 +963,13 @@ function buildExportPayload(solverState: unknown, source: ExportPlotSource) {
         temporalField: {
           x: thetaArray(snapshot.intensity.length),
           intensity: Array.from(snapshot.intensity),
-          xLabel: 'theta (rad)',
+          xLabel: TEMPORAL_X_TITLE,
           yLabel: '|psi|^2',
         },
         combSpectrum: {
           mode: centeredModeArray(snapshot.spectrumDb.length),
           spectrumDb: Array.from(snapshot.spectrumDb),
-          xLabel: 'mode index mu',
+          xLabel: SPECTRUM_X_TITLE,
           yLabel: 'Spectrum (dB)',
         },
         intracavityEnergy: {
