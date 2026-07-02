@@ -1033,7 +1033,7 @@ class RamanSsfSolver:
         self.t = 0.0
         self.params = {
             "dtnNorm": 70.0,
-            "ffNorm": 105.0,
+            "ffNorm": 90.0,
             "d2Norm": 1.65414364640884,
             "fR": 0.02,
             "tau1Fs": 11.1,
@@ -1277,7 +1277,7 @@ class RamanSsfSolver:
     def _clean_params(params):
         cleaned = {
             "dtnNorm": max(1e-9, float(params.get("dtnNorm", 70.0))),
-            "ffNorm": max(0.0, float(params.get("ffNorm", 105.0))),
+            "ffNorm": max(0.0, float(params.get("ffNorm", 90.0))),
             "d2Norm": max(1e-12, float(params.get("d2Norm", 1.65414364640884))),
             "fR": min(1.0, max(0.0, float(params.get("fR", 0.02)))),
             "tau1Fs": max(1e-9, float(params.get("tau1Fs", 11.1))),

@@ -382,7 +382,7 @@ def test_multicolor_adaptive_dt_satisfies_aliasing_bound():
 def configure_raman(solver, n=128, **params):
     base = {
         "dtnNorm": 70.0,
-        "ffNorm": 105.0,
+        "ffNorm": 90.0,
         "d2Norm": 1.65414364640884,
         "fR": 0.02,
         "tau1Fs": 11.1,

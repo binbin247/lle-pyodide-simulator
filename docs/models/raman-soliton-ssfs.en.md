@@ -48,7 +48,7 @@ In addition to the four standard plots, this model shows:
 ## Demo
 
 1. Select `Raman soliton self-frequency shift` in `MODEL`.
-2. Keep the defaults: `grid = 512`, `ffNorm = 105`, `dtnNorm = 70`,
+2. Keep the defaults: `grid = 512`, `ffNorm = 90`, `dtnNorm = 70`,
    `fR = 0.020`, `tau1Fs = 11.1`, `tau2Fs = 35`, `FSR = 1000 GHz`,
    `Q = 4e6`.
 3. Click `Play` and confirm that a stable soliton with FWHM below 35 fs forms.
