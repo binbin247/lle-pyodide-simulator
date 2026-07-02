@@ -48,12 +48,14 @@ In addition to the four standard plots, this model shows:
 ## Demo
 
 1. Select `Raman soliton self-frequency shift` in `MODEL`.
-2. Keep the defaults: `grid = 512`, `ffNorm ≈ 20.8`, `dtnNorm ≈ 25.09`,
+2. Keep the defaults: `grid = 512`, `ffNorm ≈ 9.78`, `dtnNorm ≈ 11.83`,
    `fR = 0.020`, `tau1Fs = 11.1`, `tau2Fs = 35`, `FSR = 1000 GHz`,
    `Q = 4e6`.
 3. Click `Play` and confirm that a stable soliton forms.
 4. Watch whether `pulse width fs` and `SSFS THz` converge.
-5. Scan `dtnNorm` to compare how pulse width and SSFS vary with detuning.
+5. Scan `dtnNorm` to compare how pulse width and SSFS vary with detuning. Higher
+   detuning strengthens the self-frequency shift, but it is also closer to a
+   drop-out boundary, so increase it slowly while watching the energy trace.
 6. Scan `fR` or `tau1Fs/tau2Fs` to test the Raman response.
 
 This is a lightweight real-time SSFS model. v1 does not use SciPy curve fitting;

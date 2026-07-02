@@ -178,8 +178,8 @@ describe('parameter clamping', () => {
     })
     expect(DEFAULT_RAMAN_GRID_SIZE).toBe(512)
     expect(DEFAULT_RAMAN_PARAMS).toMatchObject({
-      dtnNorm: 25.092981044961256,
-      ffNorm: 20.754698290532414,
+      dtnNorm: 11.829136663739904,
+      ffNorm: 9.784017373364096,
       fR: 0.02,
       tau1Fs: 11.1,
       tau2Fs: 35,
