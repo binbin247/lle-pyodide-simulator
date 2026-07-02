@@ -42,7 +42,7 @@ describe('parameter clamping', () => {
     })
 
     expect(params).toMatchObject({
-      alphaP: 20,
+      alphaP: 39.1,
       alphaS: 0,
       pump: 0,
       d2P: 0.25,
@@ -61,6 +61,7 @@ describe('parameter clamping', () => {
   })
 
   it('keeps Stokes system defaults aligned with the MATLAB scan script', () => {
+    expect(DEFAULT_STOKES_PARAMS.alphaP).toBe(39.1)
     expect(DEFAULT_STOKES_PARAMS.overlap).toBe(0.5)
     expect(DEFAULT_STOKES_PARAMS.fR).toBe(0.18)
     expect(DEFAULT_STOKES_PARAMS.ramanGainP).toBeCloseTo(0.35 * 0.18 * 2)

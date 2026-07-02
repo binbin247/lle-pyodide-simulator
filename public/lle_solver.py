@@ -172,7 +172,7 @@ class StokesSolitonSolver:
         self.step = 0
         self.t = 0.0
         self.params = {
-            "alphaP": 20.0,
+            "alphaP": 39.1,
             "alphaS": 0.0,
             "pump": 12.247,
             "d2P": 0.02,
@@ -368,7 +368,7 @@ class StokesSolitonSolver:
     @staticmethod
     def _clean_params(params):
         cleaned = {
-            "alphaP": float(params.get("alphaP", 20.0)),
+            "alphaP": float(params.get("alphaP", 39.1)),
             "alphaS": 0.0,
             "pump": max(0.0, float(params.get("pump", 12.247))),
             "d2P": float(params.get("d2P", 0.02)),

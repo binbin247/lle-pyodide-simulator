@@ -78,7 +78,7 @@ def test_user_dt_is_preserved_when_aliasing_safe():
 
 def configure_stokes(solver, n=256, **params):
     base = {
-        "alphaP": 20.0,
+        "alphaP": 39.1,
         "alphaS": 0.0,
         "pump": 12.247,
         "d2P": 0.02,

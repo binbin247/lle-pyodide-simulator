@@ -17,7 +17,7 @@ export const DEFAULT_STANDARD_PARAMS: StandardParams = {
 }
 
 export const DEFAULT_STOKES_PARAMS: StokesParams = {
-  alphaP: 20,
+  alphaP: 39.1,
   alphaS: 0,
   pump: 12.247,
   d2P: 0.02,
