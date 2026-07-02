@@ -21,6 +21,11 @@ interface PlotSurfaceProps {
   yFloor?: number
 }
 
+interface HeaderStat {
+  label: string
+  value: string | number
+}
+
 export function PlotSurface({
   x,
   series,
@@ -110,14 +115,26 @@ export function PlotSurface({
 
 export function PlotPanel({
   title,
+  headerStats,
   ...plotProps
 }: PlotSurfaceProps & {
   title: string
+  headerStats?: HeaderStat[]
 }) {
   return (
     <section className="visual-panel">
       <div className="visual-header">
         <h2>{title}</h2>
+        {headerStats && headerStats.length > 0 && (
+          <div className="visual-header-stats">
+            {headerStats.map((item) => (
+              <span className="visual-header-stat" key={item.label}>
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <PlotSurface {...plotProps} />
     </section>

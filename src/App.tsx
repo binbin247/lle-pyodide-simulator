@@ -400,6 +400,12 @@ function App() {
   const temporalSeries = getTemporalSeries(snapshot, labels)
   const spectrumSeries = getSpectrumSeries(snapshot, labels)
   const energySeries = getEnergySeries(modelId, trace, labels)
+  const temporalHeaderStats = isRamanSnapshot(snapshot)
+    ? [{ label: labels.pulseWidth, value: formatNumber(snapshot.pulseWidthFs) }]
+    : undefined
+  const spectrumHeaderStats = isRamanSnapshot(snapshot)
+    ? [{ label: labels.selfFrequencyShift, value: formatNumber(snapshot.selfFrequencyShiftThz) }]
+    : undefined
 
   const resetLocalBuffers = useCallback(() => {
     const emptyRows = emptyHistoryRows()
@@ -759,6 +765,7 @@ function App() {
         <section className="plot-grid">
           <PlotPanel
             title={labels.timeDomain}
+            headerStats={temporalHeaderStats}
             x={intensityX}
             series={temporalSeries}
             xRange={THETA_RANGE}
@@ -770,6 +777,7 @@ function App() {
           />
           <PlotPanel
             title={labels.spectrum}
+            headerStats={spectrumHeaderStats}
             x={spectrumX}
             series={spectrumSeries}
             xTitle={SPECTRUM_X_TITLE}
@@ -859,15 +867,7 @@ function DiagnosticMetrics({
     )
   }
   if (isRamanSnapshot(snapshot)) {
-    return (
-      <section className="metric-strip diagnostic-strip">
-        <Metric label={labels.pulseWidth} value={formatNumber(snapshot.pulseWidthFs)} />
-        <Metric
-          label={labels.selfFrequencyShift}
-          value={formatNumber(snapshot.selfFrequencyShiftThz)}
-        />
-      </section>
-    )
+    return null
   }
   return null
 }
