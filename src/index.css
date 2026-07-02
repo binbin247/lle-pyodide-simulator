@@ -96,9 +96,10 @@ button {
 
 .model-selector {
   display: grid;
-  gap: 5px;
-  margin-top: 12px;
-  max-width: 230px;
+  gap: 7px;
+  margin-top: 14px;
+  max-width: 300px;
+  width: min(100%, 300px);
 }
 
 .model-selector span,
@@ -110,18 +111,62 @@ button {
   text-transform: uppercase;
 }
 
+.model-selector > span {
+  align-items: center;
+  color: #34475d;
+  display: inline-flex;
+  gap: 7px;
+}
+
+.model-selector > span::before {
+  background: var(--accent);
+  border-radius: 999px;
+  content: "";
+  height: 7px;
+  width: 7px;
+}
+
 .model-selector select {
   appearance: none;
   background:
-    linear-gradient(45deg, transparent 50%, var(--muted) 50%) right 12px center / 6px 6px no-repeat,
-    linear-gradient(135deg, var(--muted) 50%, transparent 50%) right 8px center / 6px 6px no-repeat,
-    var(--panel-soft);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+    linear-gradient(45deg, transparent 50%, #214f86 50%) right 18px center / 7px 7px no-repeat,
+    linear-gradient(135deg, #214f86 50%, transparent 50%) right 13px center / 7px 7px no-repeat,
+    linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
+  border: 2px solid #b8cce7;
+  border-radius: 10px;
+  box-shadow:
+    0 8px 20px rgba(35, 100, 170, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.85);
   color: var(--ink);
-  min-height: 36px;
-  padding: 7px 28px 7px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  min-height: 46px;
+  padding: 10px 40px 10px 14px;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
   width: 100%;
+}
+
+.model-selector select:hover {
+  background:
+    linear-gradient(45deg, transparent 50%, #123d73 50%) right 18px center / 7px 7px no-repeat,
+    linear-gradient(135deg, #123d73 50%, transparent 50%) right 13px center / 7px 7px no-repeat,
+    linear-gradient(180deg, #ffffff 0%, #e5f0ff 100%);
+  border-color: #8fb4e3;
+  box-shadow:
+    0 10px 24px rgba(35, 100, 170, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
+.model-selector select:focus-visible {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 4px rgba(35, 100, 170, 0.16),
+    0 10px 24px rgba(35, 100, 170, 0.16);
+  outline: none;
 }
 
 .panel-section {
