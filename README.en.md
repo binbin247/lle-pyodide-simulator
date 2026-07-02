@@ -1,6 +1,9 @@
 # CyberMicrocomb
 
-https://binbin247.github.io/CyberMicrocomb/
+**Start immediately:** [Open CyberMicrocomb](https://binbin247.github.io/CyberMicrocomb/)
+
+No download, installation, or environment setup is required. Open the link above
+and start microcomb simulations directly in your browser.
 
 [中文](./README.md) | [English](./README.en.md)
 
