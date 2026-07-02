@@ -63,5 +63,8 @@ the pulse width and SSFS values are fast estimates for interactive exploration.
 
 ## References
 
-- Local reference implementation: `/Users/binbin/Library/CloudStorage/OneDrive-个人/桌面/LN SSFS/Simulation/simulation2026/Soliton.py`.
-- Raman response and SSFS parameter choices follow the local `simulation2026` sweep configuration used during development.
+- M. Karpov, H. Guo, A. Kordts, V. Brasch, M. H. P. Pfeiffer, M. Zervas,
+  M. Geiselmann, and T. J. Kippenberg, "Raman Self-Frequency Shift of
+  Dissipative Kerr Solitons in an Optical Microresonator,"
+  *Physical Review Letters* **116**, 103902 (2016).
+  [https://doi.org/10.1103/PhysRevLett.116.103902](https://doi.org/10.1103/PhysRevLett.116.103902)
