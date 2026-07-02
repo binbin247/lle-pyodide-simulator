@@ -7,7 +7,7 @@ export const copy = {
     usageCount: 'Usage count: ',
     model: 'Model',
     modelLabels: {
-      standard: 'Standard microcombs',
+      standard: 'Standard soliton',
       stokes: 'Stokes soliton',
     },
     controlGroups: {
@@ -174,7 +174,7 @@ export const copy = {
     usageCount: '使用人次：',
     model: '模型',
     modelLabels: {
-      standard: 'Standard microcombs',
+      standard: 'Standard soliton',
       stokes: 'Stokes soliton',
     },
     controlGroups: {
