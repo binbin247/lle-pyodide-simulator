@@ -67,6 +67,8 @@ const TEMPORAL_X_TITLE = 'Azimuthal coordinate φ'
 const SPECTRUM_X_TITLE = 'Mode number μ'
 const TEMPORAL_Y_TITLE = 'Field intensity |ψ|<sup>2</sup>'
 const TEMPORAL_Y_LABEL = 'Field intensity |ψ|^2'
+const TURNKEY_STATE_DETUNING_RANGE: [number, number] = [-10, 40]
+const TURNKEY_STATE_POWER_RANGE: [number, number] = [0, 0.08]
 
 interface TracePoint {
   step: number
@@ -795,7 +797,6 @@ function App() {
           <Metric label="latency ms" value={formatNumber(metrics?.latencyMs ?? 0)} />
           <Metric label="load %" value={formatNumber(metrics?.loadPercent ?? 0)} />
         </section>
-        <DiagnosticMetrics snapshot={snapshot} labels={labels} />
 
         <section className="plot-grid">
           <PlotPanel
@@ -828,13 +829,21 @@ function App() {
             yMinSpan={ENERGY_MIN_Y_SPAN}
             yFloor={0}
           />
-          <section className="visual-panel waterfall-panel">
-            <div className="visual-header">
-              <h2>{labels.waterfall}</h2>
-              <span>{activeWaterfallCount}/{HISTORY_LIMIT}</span>
-            </div>
-            <WaterfallPanels modelId={modelId} rows={historyRows} labels={labels} />
-          </section>
+          {modelId === 'turnkey' ? (
+            <TurnkeyStatePanel
+              snapshot={isTurnkeySnapshot(snapshot) ? snapshot : null}
+              params={activeParams as TurnkeyParams}
+              labels={labels}
+            />
+          ) : (
+            <section className="visual-panel waterfall-panel">
+              <div className="visual-header">
+                <h2>{labels.waterfall}</h2>
+                <span>{activeWaterfallCount}/{HISTORY_LIMIT}</span>
+              </div>
+              <WaterfallPanels modelId={modelId} rows={historyRows} labels={labels} />
+            </section>
+          )}
         </section>
 
         <footer className="site-footer">
@@ -879,7 +888,7 @@ function getWaterfallCount(modelId: ModelId, rows: ModelHistoryRows) {
     return Math.max(rows.primary.length, rows.stokes.length)
   }
   if (modelId === 'turnkey') {
-    return Math.max(rows.primary.length, rows.backward.length)
+    return rows.primary.length
   }
   if (modelId === 'multicolor') {
     return Math.max(rows.primary.length, rows.signal.length, rows.idler.length)
@@ -887,24 +896,169 @@ function getWaterfallCount(modelId: ModelId, rows: ModelHistoryRows) {
   return rows.standard.length
 }
 
-function DiagnosticMetrics({
+function TurnkeyStatePanel({
   snapshot,
+  params,
   labels,
 }: {
-  snapshot: Snapshot | null
+  snapshot: TurnkeySnapshot | null
+  params: TurnkeyParams
   labels: ReturnType<typeof t>
 }) {
-  if (isTurnkeySnapshot(snapshot)) {
-    return (
-      <section className="metric-strip diagnostic-strip">
-        <Metric label={labels.lockedDetuning} value={formatNumber(snapshot.lockedDetuning)} />
-      </section>
-    )
-  }
-  if (isRamanSnapshot(snapshot)) {
-    return null
-  }
-  return null
+  const detuning = snapshot?.lockedDetuning ?? params.laserDetuning
+  const power = snapshot?.primaryEnergy ?? 0
+  const [xMin, xMax] = TURNKEY_STATE_DETUNING_RANGE
+  const [yMin, yMax] = TURNKEY_STATE_POWER_RANGE
+  const xNorm = clamp01((detuning - xMin) / (xMax - xMin))
+  const yNorm = clamp01((power - yMin) / (yMax - yMin))
+  const plot = { left: 78, top: 34, width: 460, height: 312 }
+  const plotRight = plot.left + plot.width
+  const plotBottom = plot.top + plot.height
+  const dotX = plot.left + xNorm * plot.width
+  const dotY = plotBottom - yNorm * plot.height
+
+  return (
+    <section className="visual-panel state-diagram-panel">
+      <div className="visual-header">
+        <h2>{labels.solitonState}</h2>
+        <div className="visual-header-stats">
+          <span className="visual-header-stat">
+            <span>{labels.lockedDetuning}</span>
+            <strong>{formatNumber(detuning)}</strong>
+          </span>
+          <span className="visual-header-stat">
+            <span>{labels.energy}</span>
+            <strong>{formatNumber(power)}</strong>
+          </span>
+        </div>
+      </div>
+      <svg
+        className="state-diagram"
+        viewBox="0 0 620 410"
+        role="img"
+        aria-label={`${labels.solitonState}: ${labels.lockedDetuning} ${formatNumber(detuning)}, ${labels.energy} ${formatNumber(power)}`}
+      >
+        <defs>
+          <linearGradient id="miRegion" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#8fd2cc" />
+            <stop offset="100%" stopColor="#eef8f7" />
+          </linearGradient>
+          <linearGradient id="solitonRegion" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#efb8aa" />
+            <stop offset="100%" stopColor="#fff8f5" />
+          </linearGradient>
+          <marker
+            id="stateArrow"
+            markerHeight="8"
+            markerWidth="8"
+            orient="auto"
+            refX="7"
+            refY="4"
+            viewBox="0 0 8 8"
+          >
+            <path d="M 0 0 L 8 4 L 0 8 z" fill="#111827" />
+          </marker>
+        </defs>
+
+        <rect
+          x={plot.left}
+          y={plot.top}
+          width={plot.width}
+          height={plot.height}
+          fill="#fbfcfd"
+          stroke="#111827"
+          strokeWidth="2.5"
+        />
+        <path
+          d={`M ${plot.left} ${plot.top} H ${plot.left + 325} C ${plot.left + 290} ${plot.top + 95} ${plot.left + 250} ${plotBottom - 80} ${plot.left + 215} ${plotBottom} H ${plot.left} Z`}
+          fill="url(#miRegion)"
+        />
+        <path
+          d={`M ${plot.left + 325} ${plot.top} H ${plotRight} V ${plotBottom} H ${plot.left + 215} C ${plot.left + 245} ${plotBottom - 120} ${plot.left + 285} ${plot.top + 120} ${plot.left + 325} ${plot.top} Z`}
+          fill="url(#solitonRegion)"
+        />
+        <path
+          d={`M ${plot.left + 210} ${plot.top} V ${plotBottom}`}
+          stroke="#777"
+          strokeDasharray="15 14"
+          strokeWidth="2"
+        />
+        <line
+          x1={plot.left + 210}
+          y1={plotBottom}
+          x2={plotRight}
+          y2={plot.top + 46}
+          stroke="#ff2633"
+          strokeDasharray="12 8"
+          strokeWidth="4"
+        />
+        <path
+          d={`M ${plot.left + 4} ${plotBottom - 52} C ${plot.left + 132} ${plotBottom - 5} ${plot.left + 298} ${plot.top + 86} ${plot.left + 370} ${plot.top + 46} C ${plot.left + 405} ${plot.top + 28} ${plot.left + 376} ${plot.top + 118} ${plot.left + 340} ${plot.top + 185} C ${plot.left + 293} ${plot.top + 270} ${plot.left + 344} ${plotBottom - 28} ${plotRight - 4} ${plotBottom - 10}`}
+          fill="none"
+          stroke="#293a95"
+          strokeWidth="5"
+        />
+        <path
+          d={`M ${plot.left} ${plotBottom - 92} C ${plot.left + 145} ${plotBottom - 92} ${plot.left + 208} ${plotBottom - 90} ${plot.left + 240} ${plotBottom - 92} C ${plot.left + 268} ${plotBottom - 95} ${plot.left + 310} ${plotBottom - 70} ${plotRight} ${plotBottom - 95}`}
+          fill="none"
+          stroke="#a5abb2"
+          strokeWidth="2.5"
+        />
+        <path
+          d={`M ${plot.left + 125} ${plotBottom - 28} C ${plot.left + 205} ${plotBottom - 74} ${plot.left + 285} ${plotBottom - 140} ${plot.left + 340} ${plotBottom - 178}`}
+          fill="none"
+          markerEnd="url(#stateArrow)"
+          stroke="#111827"
+          strokeWidth="2.5"
+        />
+        <path
+          d={`M ${plot.left + 348} ${plotBottom - 178} C ${plot.left + 300} ${plotBottom - 126} ${plot.left + 228} ${plotBottom - 88} ${plot.left + 188} ${plotBottom - 80}`}
+          fill="none"
+          markerEnd="url(#stateArrow)"
+          stroke="#111827"
+          strokeWidth="2.5"
+        />
+        <path
+          d={`M ${plot.left + 188} ${plotBottom - 80} C ${plot.left + 130} ${plotBottom - 70} ${plot.left + 110} ${plotBottom - 58} ${plot.left + 175} ${plotBottom - 50} C ${plot.left + 265} ${plotBottom - 39} ${plot.left + 375} ${plotBottom - 15} ${plotRight - 42} ${plotBottom}`}
+          fill="none"
+          markerEnd="url(#stateArrow)"
+          stroke="#111827"
+          strokeWidth="2.5"
+        />
+        <circle
+          className="state-diagram-dot"
+          cx={dotX}
+          cy={dotY}
+          r="9"
+          fill="#050505"
+          stroke="#ffffff"
+          strokeWidth="2"
+        />
+
+        <text className="state-diagram-region-label state-diagram-mi" x={plot.left + 255} y={plot.top + 42}>
+          {labels.miComb}
+        </text>
+        <text className="state-diagram-region-label state-diagram-soliton" x={plotRight - 116} y={plot.top + 42}>
+          {labels.soliton}
+        </text>
+        <text className="state-diagram-axis" x={plot.left + plot.width / 2} y="394" textAnchor="middle">
+          {labels.frequencyDetuning}
+        </text>
+        <text
+          className="state-diagram-axis"
+          textAnchor="middle"
+          transform="rotate(-90 26 190)"
+          x="26"
+          y="190"
+        >
+          {labels.intracavityPower}
+        </text>
+        <text className="state-diagram-tick-label" x={plot.left + 210} y={plotBottom + 32} textAnchor="middle">
+          0
+        </text>
+      </svg>
+    </section>
+  )
 }
 
 function WaterfallPanels({
@@ -925,12 +1079,7 @@ function WaterfallPanels({
     )
   }
   if (modelId === 'turnkey') {
-    return (
-      <div className="waterfall-pair">
-        <WaterfallSubpanel title={labels.primary} rows={rows.primary} />
-        <WaterfallSubpanel title={labels.backward} rows={rows.backward} />
-      </div>
-    )
+    return <WaterfallCanvas rows={rows.primary} label={labels.primary} />
   }
   if (modelId === 'multicolor') {
     return (
@@ -1218,7 +1367,6 @@ function getTemporalSeries(snapshot: Snapshot | null, labels: ReturnType<typeof 
   if (snapshot.modelId === 'turnkey') {
     return [
       { name: `${labels.primary} |P|^2`, y: snapshot.primaryIntensity, color: '#2364aa' },
-      { name: `${labels.backward} |B|^2`, y: snapshot.backwardIntensity, color: '#c43b42' },
     ]
   }
   if (snapshot.modelId === 'multicolor') {
@@ -1244,7 +1392,6 @@ function getSpectrumSeries(snapshot: Snapshot | null, labels: ReturnType<typeof 
   if (snapshot.modelId === 'turnkey') {
     return [
       { name: labels.primary, y: snapshot.primarySpectrumDb, color: '#2364aa' },
-      { name: labels.backward, y: snapshot.backwardSpectrumDb, color: '#c43b42' },
     ]
   }
   if (snapshot.modelId === 'multicolor') {
@@ -1282,11 +1429,6 @@ function getEnergySeries(
         name: labels.primary,
         y: trace.map((item) => item.primaryEnergy ?? 0),
         color: '#287d5a',
-      },
-      {
-        name: labels.backward,
-        y: trace.map((item) => item.backwardEnergy ?? 0),
-        color: '#c43b42',
       },
     ]
   }
@@ -1349,6 +1491,13 @@ function clampControlValue(value: number, min: number, max: number) {
     return min
   }
   return Math.min(max, Math.max(min, value))
+}
+
+function clamp01(value: number) {
+  if (!Number.isFinite(value)) {
+    return 0
+  }
+  return Math.min(1, Math.max(0, value))
 }
 
 function controlRange(control: ControlDefinition, gridSize: GridSize) {
