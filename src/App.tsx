@@ -350,7 +350,6 @@ function App() {
             <span>{statusText(labels, status, loadingMessage)}</span>
           </div>
           {error && <p className="error-text">{error}</p>}
-          <p className="method-note">{labels.warning}</p>
         </section>
       </aside>
 

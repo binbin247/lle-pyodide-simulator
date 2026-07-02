@@ -79,8 +79,6 @@ export const copy = {
         'Larger values advance simulation time faster per frame but reduce interactive responsiveness.',
       ],
     },
-    warning:
-      'This v1 uses a simple first-order split-step update for real-time exploration, not final publication-grade integration.',
     alphaTip: 'Pump-resonance detuning alpha.',
     pumpTip: 'Normalized pump amplitude F.',
     d2Tip: 'Second-order integrated dispersion coefficient.',
@@ -169,8 +167,6 @@ export const copy = {
         '数值越大，每帧推进的仿真时间越长，但交互响应可能变慢。',
       ],
     },
-    warning:
-      '第一版使用简单一阶分步傅里叶更新，适合实时探索，不作为最终论文级积分结果。',
     alphaTip: '泵浦-谐振失谐 alpha。',
     pumpTip: '归一化泵浦幅度 F。',
     d2Tip: '二阶集成色散系数。',
