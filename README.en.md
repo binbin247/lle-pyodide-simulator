@@ -8,6 +8,8 @@
 > No download, installation, or environment setup is required. Open the link
 > above and start microcomb simulations directly in your browser.
 
+![CyberMicrocomb promotional banner](./public/cybermicrocomb-promo.png)
+
 [中文](./README.md) | [English](./README.en.md)
 
 Interactive browser-based LLE simulator for microcomb dynamics.

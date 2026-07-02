@@ -8,6 +8,8 @@
 > 无需下载、无需安装、无需配置环境。打开上面的链接后，即可直接在浏览器中开始
 > microcomb 仿真。
 
+![CyberMicrocomb promotional banner](./public/cybermicrocomb-promo.png)
+
 [中文](./README.md) | [English](./README.en.md)
 
 面向微梳动力学的交互式浏览器端 LLE 模拟器。
