@@ -1,6 +1,5 @@
 # CyberMicrocomb
 
-> [!IMPORTANT]
 > **直接开始使用：** [点击打开 CyberMicrocomb](https://binbin247.github.io/CyberMicrocomb/)
 >
 > **网址：** https://binbin247.github.io/CyberMicrocomb/

@@ -1,6 +1,5 @@
 # CyberMicrocomb
 
-> [!IMPORTANT]
 > **Start immediately:** [Open CyberMicrocomb](https://binbin247.github.io/CyberMicrocomb/)
 >
 > **URL:** https://binbin247.github.io/CyberMicrocomb/
