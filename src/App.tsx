@@ -49,6 +49,8 @@ const THETA_TICK_VALUES = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI]
 const THETA_TICK_LABELS = ['-pi', '-pi/2', '0', 'pi/2', 'pi']
 const TEMPORAL_X_TITLE = 'Azimuthal coordinate φ'
 const SPECTRUM_X_TITLE = 'Mode number μ'
+const TEMPORAL_Y_TITLE = 'Field intensity |ψ|<sup>2</sup>'
+const TEMPORAL_Y_LABEL = 'Field intensity |ψ|^2'
 
 interface TracePoint {
   step: number
@@ -586,7 +588,7 @@ function App() {
             xTitle={TEMPORAL_X_TITLE}
             xTickLabels={THETA_TICK_LABELS}
             xTickValues={THETA_TICK_VALUES}
-            yTitle={labels.intensity}
+            yTitle={TEMPORAL_Y_TITLE}
             color="#2364aa"
           />
           <PlotPanel
@@ -946,7 +948,7 @@ function buildExportPayload(solverState: unknown, source: ExportPlotSource) {
           primaryIntensity: Array.from(snapshot.primaryIntensity),
           stokesIntensity: Array.from(snapshot.stokesIntensity),
           xLabel: TEMPORAL_X_TITLE,
-          yLabel: '|psi|^2',
+          yLabel: TEMPORAL_Y_LABEL,
         },
         combSpectrum: {
           mode: centeredModeArray(snapshot.primarySpectrumDb.length),
@@ -996,7 +998,7 @@ function buildExportPayload(solverState: unknown, source: ExportPlotSource) {
           x: thetaArray(snapshot.intensity.length),
           intensity: Array.from(snapshot.intensity),
           xLabel: TEMPORAL_X_TITLE,
-          yLabel: '|psi|^2',
+          yLabel: TEMPORAL_Y_LABEL,
         },
         combSpectrum: {
           mode: centeredModeArray(snapshot.spectrumDb.length),
