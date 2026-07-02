@@ -73,5 +73,4 @@ this does not replace a higher-order publication-grade integrator.
 
 ## References
 
-- L. A. Lugiato and R. Lefever, "Spatial dissipative structures in passive optical systems," *Physical Review Letters* **58**, 2209 (1987).
-- Y. K. Chembo and C. R. Menyuk, "Spatiotemporal Lugiato-Lefever formalism for Kerr-comb generation in whispering-gallery-mode resonators," *Physical Review A* **87**, 053852 (2013). <https://doi.org/10.1103/PhysRevA.87.053852>
+- T. Herr, V. Brasch, J. D. Jost, C. Y. Wang, N. M. Kondratiev, M. L. Gorodetsky, and T. J. Kippenberg, "Temporal solitons in optical microresonators," *Nature Photonics* **8**, 145-152 (2014). <https://doi.org/10.1038/nphoton.2013.343>
