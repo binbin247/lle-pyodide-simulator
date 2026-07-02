@@ -76,16 +76,6 @@ http://127.0.0.1:5173/
 首次加载页面需要联网，从 Pyodide CDN 获取 Pyodide 和 NumPy。运行时加载完成后，
 当前会话的计算会继续在浏览器本地执行。
 
-## 测试与构建
-
-```bash
-npm run test
-npm run build
-```
-
-测试命令会运行 Python NumPy 求解器检查，包括损耗衰减、网格重建和 Raman
-输出有限性。
-
 ## GitHub Pages
 
 仓库内置 workflow 会把应用构建成静态站点并部署到 GitHub Pages。在仓库设置中，

@@ -88,16 +88,6 @@ The first page load needs network access to fetch Pyodide and NumPy from the
 Pyodide CDN. After the runtime is loaded, the current session keeps computing
 locally in the browser.
 
-## Tests and Build
-
-```bash
-npm run test
-npm run build
-```
-
-The test command runs Python NumPy solver checks for decay, grid rebuild, and
-Raman finite output.
-
 ## GitHub Pages
 
 The included workflow builds the app as a static site and deploys it to GitHub
